@@ -12,7 +12,7 @@ import UIKit
 // persist all un-processed event via LocalLogRepo
 // after app get into foreground, load all events from LocalLogRepo
 
-class LocalLogRepo {
+class EventLocalService {
     
     init() {
         loadData()
@@ -40,12 +40,13 @@ class LocalLogRepo {
         // Always persit a copy of the events to avoid data lost during app crash
         do {
             try save()
+            logInfo("LocalLogRepo.persistData: successfuly save events: \(events.count)")
         } catch {
-            print("Error saving data: \(error)")
+            logError("LocalLogRepo.persistData: failed. \(error)")
         }
     }
     
-    static let shared = LocalLogRepo()
+    static let shared = EventLocalService()
     private let dbKey = "savedEvents"
     
     func save() throws {
@@ -61,8 +62,9 @@ class LocalLogRepo {
                 let saveEvents = try decoder.decode([EncodedContent].self, from: savedData)
                 events = saveEvents
                 events.sort { $0.timestamp < $1.timestamp }
+                logInfo("LocalLogRepo.loadData: successfully loaded events: \(events.count)")
             } catch {
-                print("Error reloading data: \(error)")
+                logError("LocalLogRepo.loadData: failed. \(error)")
             }
         }
     }
