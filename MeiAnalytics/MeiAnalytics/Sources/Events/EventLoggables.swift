@@ -113,13 +113,3 @@ public extension DurationEventLoggable {
     }
 }
 
-extension Date {
-    var shortDebugString: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MM-dd HH:mm:ss"
-        formatter.timeZone = TimeZone.current
-        formatter.locale = Locale.current
-        return formatter.string(from: self)
-    }
-}
-

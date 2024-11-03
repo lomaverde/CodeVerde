@@ -9,18 +9,30 @@ import Foundation
 import MeiAnalytics
 
 class AnalaticsLogs {
-    var viewInteractionEvent = SearchEvent.duration.searchViewInteraction.event
-    var searchInputPressed = SearchEvent.immediate.searchInputFieldKeyPressed.event
+    var inputFieldFocused = SearchEvent.duration.searchInputFieldFocused.event
+    var inputFieldKeyPressed = SearchEvent.immediate.searchInputFieldKeyPressed.event
+    var submittedToResults = SearchEvent.duration.searchFromSubmittedToResultsDisplayed.event
+    var viewInteraction = SearchEvent.duration.searchViewInteraction.event
+    
+    private var allEvents: [any EventLoggable] {
+        [inputFieldFocused,
+         inputFieldKeyPressed,
+         submittedToResults,
+         viewInteraction
+         ]
+    }
+    
     let sreenName: String
     
     init(screenName: String) {
         self.sreenName = screenName
-        viewInteractionEvent.payload.set("screen", screenName)
-        searchInputPressed.payload.set("screen", screenName)
-        viewInteractionEvent.payload.set("textfield", "Search")
+        
+        // Initialized all the events
+        for event in allEvents {
+            event.payload.set("screenName", screenName)
+        }
     }
 }
-
 
 struct Animal: Identifiable {
     let id = UUID()
@@ -32,10 +44,17 @@ class AnimalListViewModel: ObservableObject {
     
     let logs = AnalaticsLogs(screenName: "Animal List")
     
+    func markedAsDisplayed(animal: Animal) {
+        if animal.id == filteredAnimals.last?.id {
+            logs.submittedToResults.log()
+        }
+    }
+    
     @Published var searchText: String = "" {
         didSet {
             if searchText != oldValue {
-                var event = logs.searchInputPressed
+                logs.submittedToResults.start()
+                var event = logs.inputFieldKeyPressed
                 event.payload.set("searchText", searchText)
                 event.log()
                 print("didSet searchText: \(searchText)")

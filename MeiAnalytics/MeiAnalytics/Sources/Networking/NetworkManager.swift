@@ -29,7 +29,7 @@ class NetworkManager: ObservableObject {
     private var monitor: NWPathMonitor
     private let monitorQueue = DispatchQueue.global(qos: .background)
     
-    init() {
+    private init() {
         monitor = NWPathMonitor()
         startMonitoring()
     }

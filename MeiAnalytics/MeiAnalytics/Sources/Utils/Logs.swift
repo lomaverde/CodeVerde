@@ -14,13 +14,16 @@ import os
 let networkLog = OSLog(subsystem: Bundle.main.bundleIdentifier!, category: "Network")
 let analyticsLog = OSLog(subsystem: Bundle.main.bundleIdentifier!, category: "Analytics")
 
+var nowDebugString: String { Date.now.shortDebugString}
+
+
 /// Logs a debug message to the specified logging category.
 ///
 /// - Parameters:
 ///   - message: The debug message to log.
 ///   - log: The `OSLog` instance specifying the log category, with `OSLog.default` as the default.
 func debug(_ message: String, _ log: OSLog = OSLog.default) {
-    os_log("%{public}@", log: log, type: .debug, message)
+    os_log("%{public}@%{public}@", log: log, type: .debug, nowDebugString, message)
 }
 
 /// Logs an info message to the specified logging category.
@@ -28,8 +31,8 @@ func debug(_ message: String, _ log: OSLog = OSLog.default) {
 /// - Parameters:
 ///   - message: The info message to log.
 ///   - log: The `OSLog` instance specifying the log category, with `OSLog.default` as the default.
-func info(_ message: String, _ log: OSLog = OSLog.default) {
-    os_log("%{public}@", log: log, type: .info, message)
+func logInfo(_ message: String, _ log: OSLog = OSLog.default) {
+    os_log("%{public}@%{public}@", log: log, type: .info, nowDebugString, message)
 }
 
 /// Logs an error message to the specified logging category.
@@ -37,6 +40,16 @@ func info(_ message: String, _ log: OSLog = OSLog.default) {
 /// - Parameters:
 ///   - message: The error message to log.
 ///   - log: The `OSLog` instance specifying the log category, with `OSLog.default` as the default.
-func error(_ message: String, _ log: OSLog = OSLog.default) {
-    os_log("%{public}@", log: log, type: .error, message)
+func logError(_ message: String, _ log: OSLog = OSLog.default) {
+    os_log("%{public}@%{public}@", log: log, type: .error, nowDebugString, message)
+}
+
+extension Date {
+    var shortDebugString: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM-dd HH:mm:ss"
+        formatter.timeZone = TimeZone.current
+        formatter.locale = Locale.current
+        return formatter.string(from: self)
+    }
 }

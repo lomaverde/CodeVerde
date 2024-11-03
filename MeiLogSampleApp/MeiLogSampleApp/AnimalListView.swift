@@ -9,8 +9,21 @@ import SwiftUI
 
 struct AnimalListView: View {
     @StateObject private var viewModel = AnimalListViewModel()
+    
     private var logs: AnalaticsLogs { viewModel.logs }
     var searchBarWidth: CGFloat { UIScreen.main.bounds.width * 0.80 }
+
+    // Track focus state with @FocusState
+    @FocusState private var isSearchInputFocused: Bool {
+        didSet {
+            guard isSearchInputFocused != oldValue else { return }
+            if isSearchInputFocused {
+                logs.inputFieldFocused.start()
+            } else {
+                logs.inputFieldFocused.log()
+            }
+        }
+    }
     
     var body: some View {
         NavigationView {
@@ -22,6 +35,9 @@ struct AnimalListView: View {
                         Text(animal.name)
                             .font(.headline)
                             .padding(.leading, 10)
+                            .onAppear {
+                                viewModel.markedAsDisplayed(animal: animal)
+                            }
                     }
                     .padding(.vertical, 5)
                 }
@@ -33,6 +49,7 @@ struct AnimalListView: View {
                 ToolbarItem(placement: .principal) {
                     HStack {
                         TextField("Search...", text: $viewModel.searchText)
+                            .focused($isSearchInputFocused)
                             .frame(width: searchBarWidth, height: 36)
                             .padding(7)
                             .padding(.horizontal, 25)
@@ -57,11 +74,11 @@ struct AnimalListView: View {
             }
             .onAppear {
                 print("AnimalListView appeared")
-                logs.viewInteractionEvent.start() // Start interaction logging
+                logs.viewInteraction.start() // Start interaction logging
             }
             .onDisappear {
                 print("AnimalListView disappeared")
-                logs.viewInteractionEvent.log() // Log end of interaction
+                logs.viewInteraction.log() // Log end of interaction
             }
             .frame(maxWidth: .infinity)
         }

@@ -7,15 +7,15 @@
 
 import Foundation
 
-/// A service responsible for managing and uploading Analytics events.
+/// A core service responsible for managing and uploading Analytics events.
 /// It provides a central point for asynchronously adding, storing, and uploading events.
 class EventService {
     
     /// The shared singleton instance of `EventService`.
     public static let shared = EventService()
     
-    private let localRepo = LocalLogRepo.shared
-    private let serverRepo = EventLogServerRepo()
+    private let localRepo = EventLocalService.shared
+    private let serverRepo = EventNetworkService()
     private let networkManager = NetworkManager.shared
     
     /// The timer for triggering periodic uploads.
@@ -24,7 +24,7 @@ class EventService {
     /// The time interval, in seconds, for the upload timer.
     private let timerInterval = 30.0
 
-    init() {
+    private init() {
         startUploadTimer()
     }
 
@@ -69,7 +69,7 @@ private extension EventService {
             return
         }
         
-        let events = localRepo.nextBatch
+        let events = localRepo.dequeueNextBatch
         debug("\(logPrefix) processing event: \(events.count)", logger)
         
         for event in events {
@@ -77,8 +77,9 @@ private extension EventService {
                 do {
                     debug("\(logPrefix) submitting to server: \(event.debugSummary)", logger)
                     try await serverRepo.sendEventLog(event)
+                    debug("\(logPrefix) successfully submitted to server: \(event.debugSummary)", logger)
                 } catch {
-                    debug("\(logPrefix) failed submitting to server: \(event.debugSummary)", logger)
+                    debug("\(logPrefix) failed to submit to server: \(event.debugSummary)", logger)
                     // Add the failed event back for retry later.
                     localRepo.add(event: event)
                 }

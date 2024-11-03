@@ -1,5 +1,5 @@
 //
-//  LocalLogRepo.swift
+//  EventLocalService.swift
 //  MeiAnalytics
 //
 //  Created by Mei Yu on 11/1/24.
@@ -8,59 +8,71 @@
 import Foundation
 import UIKit
 
-// before app went into background
-// persist all un-processed event via LocalLogRepo
-// after app get into foreground, load all events from LocalLogRepo
-
+/// A service class responsible for managing encoded events in memory and device storage.
 class EventLocalService {
     
-    init() {
+    /// The shared singleton instance of `EventLocalService`.
+    static let shared = EventLocalService()
+    
+    /// The key used for saving and retrieving event data in `UserDefaults`.
+    private let dbKey = "savedEvents"
+    
+    /// The in-memory list of event data.
+    private var events: [EncodedContent] = []
+    
+    /// The maxium number of events to be returned for process.
+    private let eventBatchSize = 5
+    
+    /// Initializes the service, loads previously saved data, and sets up notification observers.
+    private init() {
         loadData()
         addObservers()
-    }
-    
-    private func addObservers() {
-        let nc = NotificationCenter.default
-        nc.addObserver(self, selector: #selector(persistData), name: UIApplication.didEnterBackgroundNotification, object: nil)
-        nc.addObserver(self, selector: #selector(persistData), name: UIApplication.willTerminateNotification, object: nil)
-    }
-    
-    private func removeObservers() {
-        // Remove observer to prevent memory leaks
-        let nc = NotificationCenter.default
-        nc.removeObserver(self, name: UIApplication.didEnterBackgroundNotification, object: nil)
-        nc.removeObserver(self, name: UIApplication.willTerminateNotification, object: nil)
     }
     
     deinit {
         removeObservers()
     }
     
-    @objc private func persistData() {
-        // Always persit a copy of the events to avoid data lost during app crash
-        do {
-            try save()
-            logInfo("LocalLogRepo.persistData: successfuly save events: \(events.count)")
-        } catch {
-            logError("LocalLogRepo.persistData: failed. \(error)")
-        }
+    /// Adds a new event to the in-memory cache.
+    func add(event: EncodedContent) {
+        events.append(event)
     }
     
-    static let shared = EventLocalService()
-    private let dbKey = "savedEvents"
+    /// Retrieves and clears the next batch of events.
+    var dequeueNextBatch: [EncodedContent] {
+        let batch = events
+        events.removeAll()
+        return batch
+    }
+}
+
+private extension EventLocalService {
     
-    func save() throws {
-            let encoder = JSONEncoder()
-            let encodedData = try? encoder.encode(events)
-            UserDefaults.standard.set(encodedData, forKey: dbKey)
+    /// Adds observers for app lifecycle notifications.
+    func addObservers() {
+        let nc = NotificationCenter.default
+        nc.addObserver(self, selector: #selector(persistData), name: UIApplication.didEnterBackgroundNotification, object: nil)
+        nc.addObserver(self, selector: #selector(persistData), name: UIApplication.willTerminateNotification, object: nil)
+    }
+    
+    /// Removes observers for app lifecycle notifications.
+    /// This method is called in `deinit` to prevent memory leaks.
+    private func removeObservers() {
+        let nc = NotificationCenter.default
+        nc.removeObserver(self, name: UIApplication.didEnterBackgroundNotification, object: nil)
+        nc.removeObserver(self, name: UIApplication.willTerminateNotification, object: nil)
     }
 
-    func loadData() {
+    /// Loads saved event data from `UserDefaults` into memory.
+    ///
+    /// If data exists under `dbKey`, it is decoded and loaded into `events`. The data
+    /// is sorted by timestamp, ensuring chronological order.
+    private func loadData() {
         if let savedData = UserDefaults.standard.data(forKey: dbKey) {
             do {
                 let decoder = JSONDecoder()
-                let saveEvents = try decoder.decode([EncodedContent].self, from: savedData)
-                events = saveEvents
+                let savedEvents = try decoder.decode([EncodedContent].self, from: savedData)
+                events = savedEvents
                 events.sort { $0.timestamp < $1.timestamp }
                 logInfo("LocalLogRepo.loadData: successfully loaded events: \(events.count)")
             } catch {
@@ -68,17 +80,19 @@ class EventLocalService {
             }
         }
     }
-    
-    private var events: [EncodedContent] = []
-    private let batchThreshold = 5
 
-    func add(event: EncodedContent) {
-        events.append(event)
-    }
-    
-    var nextBatch: [EncodedContent] {
-        let batch = events
-        events.removeAll()
-        return batch
+    /// Persists event data to `UserDefaults` when the app enters the background or is about to terminate.
+    ///
+    /// This method is triggered by lifecycle notifications and ensures that any unsaved events
+    /// are stored to prevent data loss in case of an unexpected app termination.
+    @objc private func persistData() {
+        do {
+            let encoder = JSONEncoder()
+            let encodedData = try encoder.encode(events)
+            UserDefaults.standard.set(encodedData, forKey: dbKey)
+            logInfo("LocalLogRepo.persistData: successfully saved events: \(events.count)")
+        } catch {
+            logError("LocalLogRepo.persistData: failed. \(error)")
+        }
     }
 }
