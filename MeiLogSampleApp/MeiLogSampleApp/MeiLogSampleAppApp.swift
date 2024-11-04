@@ -6,9 +6,17 @@
 //
 
 import SwiftUI
+import MeiAnalytics
 
 @main
 struct MeiLogSampleAppApp: App {
+    
+    private var eventService = EventService.shared
+    
+    init() {
+        eventService.isEnabled = true
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()

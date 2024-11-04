@@ -64,6 +64,7 @@ extension EventLoggable {
     var logService: EventService { EventService.shared }
     
     func addLog() {
+        guard logService.isEnabled else { return }
         do {
             let encodedData = try self.encodedData()
             let encodedEvent = EncodedContent(timestamp: timestamp , debugSummary: debugInfo(), encodedContent: encodedData)

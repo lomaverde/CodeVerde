@@ -18,10 +18,10 @@ class EventLocalService {
     private let dbKey = "savedEvents"
     
     /// The in-memory list of event data.
-    private var events: [EncodedContent] = []
+    private var events: ThreadSafeArray<EncodedContent> = ThreadSafeArray()
     
     /// The maxium number of events to be returned for process.
-    private let eventBatchSize = 5
+    private let eventBatchSize = 20
     
     /// Initializes the service, loads previously saved data, and sets up notification observers.
     private init() {
@@ -40,9 +40,7 @@ class EventLocalService {
     
     /// Retrieves and clears the next batch of events.
     var dequeueNextBatch: [EncodedContent] {
-        let batch = events
-        events.removeAll()
-        return batch
+        return events.dequeue(count: eventBatchSize)
     }
 }
 
@@ -71,10 +69,11 @@ private extension EventLocalService {
         if let savedData = UserDefaults.standard.data(forKey: dbKey) {
             do {
                 let decoder = JSONDecoder()
-                let savedEvents = try decoder.decode([EncodedContent].self, from: savedData)
-                events = savedEvents
-                events.sort { $0.timestamp < $1.timestamp }
-                logInfo("LocalLogRepo.loadData: successfully loaded events: \(events.count)")
+                var savedEvents = try decoder.decode([EncodedContent].self, from: savedData)
+                savedEvents.sort { $0.timestamp < $1.timestamp }
+                logInfo("LocalLogRepo.loadData: successfully loaded events: \(savedEvents.count)")
+                events = ThreadSafeArray(array: savedEvents)
+                UserDefaults.standard.set(nil, forKey: dbKey)
             } catch {
                 logError("LocalLogRepo.loadData: failed. \(error)")
             }
@@ -88,9 +87,10 @@ private extension EventLocalService {
     @objc private func persistData() {
         do {
             let encoder = JSONEncoder()
-            let encodedData = try encoder.encode(events)
+            let all_encodedContents = events.getAll()
+            let encodedData = try encoder.encode(all_encodedContents)
             UserDefaults.standard.set(encodedData, forKey: dbKey)
-            logInfo("LocalLogRepo.persistData: successfully saved events: \(events.count)")
+            logInfo("LocalLogRepo.persistData: successfully saved events: \(all_encodedContents.count)")
         } catch {
             logError("LocalLogRepo.persistData: failed. \(error)")
         }

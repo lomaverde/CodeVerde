@@ -9,7 +9,12 @@ import Foundation
 
 /// A core service responsible for managing and uploading Analytics events.
 /// It provides a central point for asynchronously adding, storing, and uploading events.
-class EventService {
+public class EventService {
+    
+    struct EventCounts {
+        var total: Int = 0
+        var sent: Int = 0
+    }
     
     /// The shared singleton instance of `EventService`.
     public static let shared = EventService()
@@ -18,11 +23,24 @@ class EventService {
     private let serverRepo = EventNetworkService()
     private let networkManager = NetworkManager.shared
     
+    private var counts = EventCounts()
+    
+    public var isEnabled = false {
+        didSet {
+            if isEnabled {
+                timer?.invalidate()
+                startUploadTimer()
+            } else {
+                timer?.invalidate()
+            }
+        }
+    }
+    
     /// The timer for triggering periodic uploads.
     private var timer: Timer?
     
     /// The time interval, in seconds, for the upload timer.
-    private let timerInterval = 30.0
+    private let timerInterval = 20.0
 
     private init() {
         startUploadTimer()
@@ -37,7 +55,9 @@ class EventService {
     /// This function saves the encoded event in the local store for future upload and the
     /// service will manage its persistent and uploading asynchronously.
     ///
-    public func add(encodedEvent: EncodedContent) {
+    func add(encodedEvent: EncodedContent) {
+        guard isEnabled else { return }
+        counts.total += 1
         localRepo.add(event: encodedEvent)
     }
 }
@@ -69,14 +89,17 @@ private extension EventService {
             return
         }
         
+        debug("\(logPrefix) old counts: total:\(counts.total), sent:\(counts.sent)", logger)
+        
         let events = localRepo.dequeueNextBatch
-        debug("\(logPrefix) processing event: \(events.count)", logger)
+        debug("\(logPrefix) processing new batch of event: \(events.count)", logger)
         
         for event in events {
             Task {
                 do {
                     debug("\(logPrefix) submitting to server: \(event.debugSummary)", logger)
                     try await serverRepo.sendEventLog(event)
+                    counts.sent += 1
                     debug("\(logPrefix) successfully submitted to server: \(event.debugSummary)", logger)
                 } catch {
                     debug("\(logPrefix) failed to submit to server: \(event.debugSummary)", logger)
