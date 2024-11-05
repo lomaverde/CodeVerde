@@ -61,7 +61,7 @@ public extension EventLoggable {
 
 extension EventLoggable {
     
-    var logService: EventService { EventService.shared }
+    var logService: EventCoreService { EventCoreService.shared }
     
     func addLog() {
         guard logService.isEnabled else { return }
@@ -81,7 +81,7 @@ extension EventLoggable {
 /// A protocol that represents loggable events with a specific duration, inheriting from `EventLoggable`.
 ///
 /// `DurationEventLoggable` extends `EventLoggable` by adding properties for tracking
-/// the start and end times of an event, allowing the calculation of an event's duration.
+/// the start and end time(timestamp)  of an event, allowing the calculation of an event's duration.
 /// This is particularly useful for tracking time-based activities, such as user sessions
 /// or specific actions within an app.
 ///

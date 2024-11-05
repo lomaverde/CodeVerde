@@ -1,5 +1,5 @@
 //
-//  EventService.swift
+//  EventCoreService.swift
 //  MeiAnalytics
 //
 //  Created by Mei Yu on 11/1/24.
@@ -9,22 +9,28 @@ import Foundation
 
 /// A core service responsible for managing and uploading Analytics events.
 /// It provides a central point for asynchronously adding, storing, and uploading events.
-public class EventService {
+public class EventCoreService {
     
+    /// A struct to keep track of different counts.
     struct EventCounts {
         var total: Int = 0
         var sent: Int = 0
     }
     
     /// The shared singleton instance of `EventService`.
-    public static let shared = EventService()
+    public static let shared = EventCoreService()
     
     private let localRepo = EventLocalService.shared
     private let serverRepo = EventNetworkService()
     private let networkManager = NetworkManager.shared
     
+    /// counts of events for logging
     private var counts = EventCounts()
     
+    /// A Boolean value indicating whether `EventCoreService` is enabled.
+    ///
+    /// - `true`: The service is active and available for use.
+    /// - `false`: The service is disabled and will ignore any request.
     public var isEnabled = false {
         didSet {
             if isEnabled {
@@ -62,7 +68,7 @@ public class EventService {
     }
 }
 
-private extension EventService {
+private extension EventCoreService {
     
     /// Starts a timer to periodically trigger upload tasks.
     func startUploadTimer() {
