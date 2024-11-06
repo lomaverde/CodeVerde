@@ -34,10 +34,12 @@ class AnalaticsLogs {
     }
 }
 
-struct Animal: Identifiable {
+struct Animal: Identifiable, Equatable {
     let id = UUID()
     let name: String
     let emoji: String
+    var detail: String = ""
+    var fondness: Int = 3
 }
 
 class AnimalListViewModel: ObservableObject {
@@ -47,6 +49,20 @@ class AnimalListViewModel: ObservableObject {
     func markedAsDisplayed(animal: Animal) {
         if animal.id == filteredAnimals.last?.id {
             logs.submittedToResults.log()
+        }
+    }
+    
+    func update(animal: Animal) {
+        // find index of animal
+        // replace
+        var foundIndex = -1
+        for (index, value) in animals.enumerated() {
+            if value.id == animal.id {
+                foundIndex = index
+            }
+        }
+        if foundIndex != -1 {
+            animals[foundIndex] = animal
         }
     }
     
@@ -79,6 +95,7 @@ class AnimalListViewModel: ObservableObject {
         Animal(name: "Crab", emoji: "🦀"),
         Animal(name: "Crocodile", emoji: "🐊"),
         Animal(name: "Deer", emoji: "🦌"),
+        /*
         Animal(name: "Dinosaur", emoji: "🦖"),
         Animal(name: "Dog", emoji: "🐶"),
         Animal(name: "Duck", emoji: "🦆"),
@@ -118,6 +135,7 @@ class AnimalListViewModel: ObservableObject {
         Animal(name: "Whale", emoji: "🐳"),
         Animal(name: "Wolf", emoji: "🐺"),
         Animal(name: "Zebra", emoji: "🦓"),
+         */
     ]
     
     // Filtered list based on search text
