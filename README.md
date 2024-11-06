@@ -8,6 +8,7 @@
 - [Installation](#installation)
 - [Usage](#usage)
 - [High Level Design](#high-level-design)
+- [Roadmap](#roadmap)
 
 ## Features
 
@@ -84,7 +85,42 @@ searchViewInteractionEvent.log()
 
 ## High Level Design
 
-### class diagram
+### Class Diagrams
 
-![Main class diagram](MeiAnalytics-main-classes.png)
+![Main class diagram](Documentation/Assets/MeiAnalytics-main-classes.png)
+
+### Sequence Diagrams
+
+#### Log event with duration
+
+![Log event with duration diagram](Documentation/Assets/Sequence-Log_DurationEvent.png)
+Sequence-Log_DurationEvent
+
+#### Upload events to server
+
+![Upload events to server diagram](Documentation/Assets/Sequence-UploadEvents.png)
+
+## Roadmap
+
+### Features
+
+#### Analytics Framework
+
+1. Framework Configuration by client
+    - 1.1 Server Endpoints
+    - 1.2 Payload transformation
+
+2. Local Logging
+    - 2.1 log to console
+    - 2.2 log to file
+    - 2.3 Export 
+    - 2.4 Report with charts
+
+### Technical 
+
+1. Move dependances to Context objects
+2. Add Unit tests
+3. Add UI automation tests.
+
+
 
