@@ -10,6 +10,9 @@ struct AnimalDetailView: View {
     
     @State private var animal: Animal
     @ObservedObject var animalListViewModel: AnimalListViewModel
+    
+    @State private var isEmojiAnimated = false
+    @State private var isTapped = false
         
     init(animal: Animal,
          animalListViewModel: AnimalListViewModel) {
@@ -21,6 +24,17 @@ struct AnimalDetailView: View {
         VStack(alignment: .leading, spacing: 5) {
             Text(animal.emoji)
                 .font(.system(size: 100))
+                .scaleEffect(isEmojiAnimated ? 1.0 : 0.5) // Scale animation
+                .opacity(isEmojiAnimated ? 1 : 0.3)     // Fade-in effect
+                .animation(.easeInOut(duration: 0.9), value: isEmojiAnimated)
+                .offset(x: isTapped ? 100 : 0) // Moves the text to the right
+                .animation(.easeInOut(duration: 0.5), value: isTapped)
+                .onTapGesture {
+                        isTapped.toggle()
+                 }
+                .onAppear {
+                    isEmojiAnimated.toggle()
+                }
             Text(animal.name)
                 .font(.title)
             RatingView(rating: $animal.fondness)
@@ -44,17 +58,6 @@ struct AnimalDetailView: View {
 }
 
 /// A configurable view that provides a multi-line text input area.
-///
-/// `MultiLineTextView` allows users to enter and edit longer text
-///
-/// - Properties:
-///  - label: Label
-///   - text: A binding to the entered text, which can be modified by the user.
-///
-/// - Example:
-/// ```
-/// MultiLineTextView(text: $description)
-/// ```
 struct MultiLineTextView: View {
     @Binding var text: String
 
@@ -100,29 +103,37 @@ struct MultiLineTextView: View {
 struct RatingView: View {
     @Binding var rating: Int
     var maxRating: Int
-    var starSize: CGFloat
+    var itemSize: CGFloat
     var color: Color
+    
+    let animationDuration: Double = 0.2
     
     init(rating: Binding<Int>,
          maxRating: Int = 7,
-         starSize: CGFloat = 20,
+         itemSize: CGFloat = 20,
          color: Color = .purple
          ) {
         self._rating = rating
         self.maxRating = maxRating
-        self.starSize = starSize
+        self.itemSize = itemSize
         self.color = color
     }
     
     var body: some View {
         HStack {
-            ForEach(1...maxRating, id: \.self) { star in
-                Image(systemName: star <= rating ? "heart.fill" : "heart")
+            ForEach(1...maxRating, id: \.self) { item in
+                Image(systemName: item <= rating ? "heart.fill" : "heart")
                     .resizable()
-                    .frame(width: starSize, height: starSize)
-                    .foregroundColor(star <= rating ? color : .gray)
+                    .frame(width: itemSize, height: itemSize)
+                    .foregroundColor(item <= rating ? color : .gray)
+                    .rotationEffect(item == rating ? .degrees(360) : .degrees(0)) // Rotation effect
+                    .scaleEffect(item == rating ? 1.4 : 1.0) // Scale effect
+                    .opacity(item <= rating ? 1.0 : 0.6) // Dim the unselected items
+                    .animation(.easeInOut(duration: animationDuration), value: rating)
                     .onTapGesture {
-                        rating = star
+                        withAnimation {
+                            rating = item
+                        }
                     }
             }
         }
