@@ -28,7 +28,7 @@ struct AnimalListView: View {
     var body: some View {
         NavigationView {
             List(viewModel.filteredAnimals) { animal in
-                NavigationLink(destination: AnimalDetailView(animal: animal)) {
+                NavigationLink(destination: AnimalDetailView(animal: animal, animalListViewModel: viewModel)) {
                     HStack {
                         Text(animal.emoji)
                             .font(.largeTitle)
@@ -81,33 +81,6 @@ struct AnimalListView: View {
                 logs.viewInteraction.log() // Log end of interaction
             }
             .frame(maxWidth: .infinity)
-        }
-    }
-}
-
-// Detail View for Each Animal
-struct AnimalDetailView: View {
-    let animal: Animal
-    
-    var body: some View {
-        VStack {
-            Text(animal.emoji)
-                .font(.system(size: 100))
-                .padding()
-            
-            Text(animal.name)
-                .font(.largeTitle)
-                .padding()
-            
-            Spacer()
-        }
-        .navigationTitle(animal.name)
-        .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
-            print("AnimalDetailView appeared")
-        }
-        .onDisappear {
-            print("AnimalDetailView disappeared")
         }
     }
 }

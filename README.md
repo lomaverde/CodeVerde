@@ -7,7 +7,7 @@
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Internal Information](#internal-information)
+- [High Level Design](#high-level-design)
 
 ## Features
 
@@ -82,7 +82,7 @@ searchViewInteractionEvent.log()
 
 ```
 
-## Internal Information
+## High Level Design
 
 ### class diagram
 
