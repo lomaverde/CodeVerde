@@ -1,6 +1,6 @@
 # MeiAnalytics
 
-**MeiAnalytics** is a lightweight and flexible analytics framework for tracking user interactions, events, and custom metrics in iOS applications.  In stead of taking 
+**MeiAnalytics** is a lightweight and flexible analytics framework for tracking user interactions, events, and custom metrics in iOS applications. 
 
 ## Table of Contents
 
