@@ -34,14 +34,6 @@ Import MeiAnalytics in your Swift files:
 
 ```swift
 import MeiAnalytics
-
-struct Example {
-    var name: String
-
-    func greet() {
-        print("Hello, \(name)!")
-    }
-}
 ```
 
 ### Basic Setup
