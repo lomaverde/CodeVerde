@@ -9,6 +9,7 @@
 - [Usage](#usage)
 - [High Level Design](#high-level-design)
 - [Roadmap](#roadmap)
+- [Design Patterns](#architecture-and-design-patterns)
 
 ## Features
 
@@ -91,6 +92,39 @@ Sequence-Log_DurationEvent
 #### Upload events to server
 
 ![Upload events to server diagram](Documentation/Assets/Sequence-UploadEvents.png)
+
+## Architecture and Design Patterns
+
+### Design Patterns Used 
+
+#### Creational 
+
+- *Singleton*
+- *Dependency Injection*
+
+#### Structural 
+
+- *Facade*
+
+#### Behavioral
+
+- *Strategy*
+
+#### Concurrency 
+
+- *Reader-Writer Lock*
+
+#### Patterns in SwiftUI
+
+- *Declaratie UI Programming*
+
+- *Functional Reactive Programming*
+
+- *State-Driven*
+
+- *Unidirectional Data Flow*
+
+- *MVVM*
 
 ## Roadmap
 
