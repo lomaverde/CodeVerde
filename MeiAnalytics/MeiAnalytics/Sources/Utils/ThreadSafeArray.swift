@@ -41,6 +41,13 @@ class ThreadSafeArray<Element> {
         }
     }
     
+    /// Sorts the array using a custom comparator in a thread-safe manner.
+    func sort(by comparator: @escaping (Element, Element) -> Bool) {
+        queue.async(flags: .barrier) { [weak self] in
+            self?.array.sort(by: comparator)
+        }
+    }
+    
     /// Adds an array of element to the array in a thread-safe manner.
     func append(_ elements: [Element]) {
         queue.async(flags: .barrier) {

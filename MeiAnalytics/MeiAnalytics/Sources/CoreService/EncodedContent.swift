@@ -11,6 +11,7 @@ import Foundation
 /// This structure is useful when the content of the event needs to be enummtable
 /// and encoded data is used for local storage and networking.
 /// In the future, we can add more information such as retry, ID, etc.
+@available(*, deprecated, message: "This class is deprecated. Use EventCodableWrapper instead.")
 struct EncodedContent: Codable {
     let timestamp: Date
     let debugSummary: String
