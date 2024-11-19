@@ -9,16 +9,19 @@ import Foundation
 import UIKit
 
 /// A service class responsible for managing encoded events in memory and device storage.
-class EventLocalService {
+@available(*, deprecated, message: "This class is deprecated. Use EventLocalServiceV2 instead.")
+class EventLocalServiceV1 {
     
     /// The shared singleton instance of `EventLocalService`.
-    static let shared = EventLocalService()
+    static let shared = EventLocalServiceV1()
     
     /// The key used for saving and retrieving event data in `UserDefaults`.
     private let dbKey = "savedEvents"
     
     /// The in-memory list of event data.
     private var events: ThreadSafeArray<EncodedContent> = ThreadSafeArray()
+    /// The in-memory list of event data.
+    private var eventWrappers: ThreadSafeArray<EventCodableWrapper> = ThreadSafeArray()
     
     /// The maxium number of events to be returned for process.
     private let eventBatchSize = 20
@@ -38,13 +41,17 @@ class EventLocalService {
         events.append(event)
     }
     
+    func add(eventWrapper: EventCodableWrapper) {
+        eventWrappers.append(eventWrapper)
+    }
+    
     /// Retrieves and clears the next batch of events.
     var dequeueNextBatch: [EncodedContent] {
         return events.dequeue(count: eventBatchSize)
     }
 }
 
-private extension EventLocalService {
+private extension EventLocalServiceV1 {
     
     /// Adds observers for app lifecycle notifications.
     func addObservers() {

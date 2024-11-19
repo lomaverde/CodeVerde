@@ -49,6 +49,26 @@ class EventNetworkService {
             }
         }
     }
+    
+    func sendEventLog(_ event: EventLoggable) async throws {
+        let url = urlProvider.testingURL
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Add the encoded event to the POST body
+        request.httpBody = try event.encodedData()
+        
+        // Send the request asynchronously
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        // Check the response status
+        if let httpResponse = response as? HTTPURLResponse {
+            if httpResponse.statusCode != 200 {
+                throw ServiceError.serverError
+            }
+        }
+    }
 }
 
 /// A utility struct for providing URLs for testing purposes.

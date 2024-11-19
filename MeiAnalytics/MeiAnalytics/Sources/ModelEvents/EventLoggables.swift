@@ -35,6 +35,9 @@ public protocol EventLoggable: Codable {
     
     /// EncodedData
     func encodedData() throws -> Data
+    
+    /// Return a deep copy of the event.
+    func deepCopy() -> Self
 }
 
 public extension EventLoggable {
@@ -63,17 +66,32 @@ extension EventLoggable {
     
     var logService: EventCoreService { EventCoreService.shared }
     
+    public func deepCopy() -> Self {
+        // Encode the object to JSON
+        let encoder = JSONEncoder()
+        guard let data = try? encoder.encode(self) else {
+            fatalError("Failed to encode object for deep copy.")
+        }
+        
+        // Decode the JSON back to a new instance
+        let decoder = JSONDecoder()
+        guard let copy = try? decoder.decode(Self.self, from: data) else {
+            fatalError("Failed to decode object for deep copy.")
+        }
+        
+        return copy
+    }
+    
     func addLog() {
         guard logService.isEnabled else { return }
+        
         do {
-            let encodedData = try self.encodedData()
-            let encodedEvent = EncodedContent(timestamp: timestamp , debugSummary: debugInfo(), encodedContent: encodedData)
-            // Pass the encoded event to the service to avoid it being modifed by the owner of the event after it is being logged.
-            // This is more performant than making a deep copy as we don't need to use the content
-            // in the event for other business logic.
-            logService.add(encodedEvent: encodedEvent)
+            // Pass a deep copy of event to the service to avoid it being modifed by the owner of the event
+            // after it is being logged.
+            let codableEvent = try EventCodableWrapper(event: self.deepCopy())
+            logService.add(eventWrapper: codableEvent)
         } catch {
-            
+            print(error)
         }
     }
 }
@@ -106,7 +124,7 @@ public extension DurationEventLoggable {
     mutating func log(){
         timestamp = .now
         if let startTime {
-            duration = timestamp.timeIntervalSince1970 - startTime.timeIntervalSince1970
+            duration =  timestamp.timeIntervalSince(startTime)
         } else {
             duration = -1
         }

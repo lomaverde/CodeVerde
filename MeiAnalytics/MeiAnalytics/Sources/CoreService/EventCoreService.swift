@@ -20,7 +20,7 @@ public class EventCoreService {
     /// The shared singleton instance of `EventService`.
     public static let shared = EventCoreService()
     
-    private let localRepo = EventLocalService.shared
+    private let localRepo = EventLocalServiceV2.shared
     private let serverRepo = EventNetworkService()
     private let networkManager = NetworkManager.shared
     
@@ -56,15 +56,10 @@ public class EventCoreService {
         timer?.invalidate()
     }
     
-    /// Adds a new encoded event to the service.
-    ///
-    /// This function saves the encoded event in the local store for future upload and the
-    /// service will manage its persistent and uploading asynchronously.
-    ///
-    func add(encodedEvent: EncodedContent) {
+    func add(eventWrapper: EventCodableWrapper) {
         guard isEnabled else { return }
         counts.total += 1
-        localRepo.add(event: encodedEvent)
+        localRepo.add(event: eventWrapper)
     }
 }
 
@@ -100,17 +95,18 @@ private extension EventCoreService {
         let events = localRepo.dequeueNextBatch
         debug("\(logPrefix) processing new batch of event: \(events.count)", logger)
         
-        for event in events {
+        for codableEvent in events {
+            let event = codableEvent.event
             Task {
                 do {
-                    debug("\(logPrefix) submitting to server: \(event.debugSummary)", logger)
+                    debug("\(logPrefix) submitting to server: \(event.timestamp)", logger)
                     try await serverRepo.sendEventLog(event)
                     counts.sent += 1
-                    debug("\(logPrefix) successfully submitted to server: \(event.debugSummary)", logger)
+                    debug("\(logPrefix) successfully submitted to server: \(event.timestamp)", logger)
                 } catch {
-                    debug("\(logPrefix) failed to submit to server: \(event.debugSummary)", logger)
+                    debug("\(logPrefix) failed to submit to server: \(event.timestamp)", logger)
                     // Add the failed event back for retry later.
-                    localRepo.add(event: event)
+                    localRepo.add(event: codableEvent)
                 }
             }
         }
