@@ -11,10 +11,10 @@ import MeiAnalytics
 @main
 struct MeiLogSampleAppApp: App {
     
-    private var eventService = EventCoreService.shared
+    private var eventService = AnalyticsFacade.shared
     
     init() {
-        eventService.isEnabled = true
+        eventService.enableService()
     }
     
     var body: some Scene {

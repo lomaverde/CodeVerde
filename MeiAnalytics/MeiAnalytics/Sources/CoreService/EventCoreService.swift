@@ -7,9 +7,17 @@
 
 import Foundation
 
+protocol EventCoreServiceProtocol: AnyObject {
+    
+    var isEnabled: Bool { get set }
+    
+    func add(eventWrapper: EventCodableWrapper)
+    
+}
+
 /// A core service responsible for managing and uploading Analytics events.
 /// It provides a central point for asynchronously adding, storing, and uploading events.
-public class EventCoreService {
+public class EventCoreService: EventCoreServiceProtocol {
     
     /// A struct to keep track of different counts.
     struct EventCounts {
@@ -18,7 +26,7 @@ public class EventCoreService {
     }
     
     /// The shared singleton instance of `EventService`.
-    public static let shared = EventCoreService()
+    //public static let shared = EventCoreService()
     
     private let localRepo = EventLocalServiceV2.shared
     private let serverRepo = EventNetworkService()
@@ -48,7 +56,7 @@ public class EventCoreService {
     /// The time interval, in seconds, for the upload timer.
     private let timerInterval = 20.0
 
-    private init() {
+    init() {
         startUploadTimer()
     }
 

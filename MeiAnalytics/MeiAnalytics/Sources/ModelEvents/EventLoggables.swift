@@ -17,7 +17,7 @@ import Foundation
 /// different event types within the system.
 ///
 public protocol EventLoggable: Codable {
-    
+        
     /// Type of the logging event
     var type: String { get }
     
@@ -64,7 +64,7 @@ public extension EventLoggable {
 
 extension EventLoggable {
     
-    var logService: EventCoreService { EventCoreService.shared }
+    var logService: EventCoreServiceProtocol { AnalyticsFacade.shared.context.eventCoreService }
     
     public func deepCopy() -> Self {
         // Encode the object to JSON
@@ -131,4 +131,3 @@ public extension DurationEventLoggable {
         addLog()
     }
 }
-
