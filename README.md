@@ -1,3 +1,12 @@
+
+# Mission of the CodeVerde Project
+
+The mission of CodeVerde is to empower developers to build scalable, maintainable, and modular systems by bridging the gap between theoretical concepts and practical application of architectural principles and design patterns.
+
+By providing clear examples, reusable templates, and intuitive tools, CodeVerde aims to simplify complex design challenges, foster best practices, and inspire innovation. Our goal is to create a reliable resource that enables developers at all levels to craft clean, efficient, and future-proof codebases.
+
+Together, let’s advance the art of software design and make complex systems simpler and more accessible for everyone.
+
 # MeiAnalytics
 
 **MeiAnalytics** is a lightweight and flexible analytics framework for tracking user interactions, events, and custom metrics in iOS applications. 
