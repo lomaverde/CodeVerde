@@ -35,8 +35,10 @@ Feel free to contribute or share your thoughts! Together, we can advance the art
       - [Features Improvement](#features-improvement)
         - [Analytics Framework](#analytics-framework)
       - [Technical Improvement](#technical-improvement)
-- [General Concepts for iOS Applications](#general-concepts-for-ios-applications)
+- [General Design Concepts for iOS Applications](#general-design-concepts-for-ios-applications)
   - [Popular Architecture Patterns](#popular-architecture-patterns)
+    - [1. **Model-View-Controller (MVC)**](#1-model-view-controller-mvc)
+    - [2. **Model-View-ViewModel (MVVM)**](#2-model-view-viewmodel-mvvm)
   - [Design Patterns](#design-patterns)
   - [Anti-Patterns](#anti-patterns)
   - [SOLID Design Principles](#solid-design-principles)
@@ -198,9 +200,57 @@ Sequence-Log_DurationEvent
 3. Add UI automation tests.
 
 
-# General Concepts for iOS Applications
+# General Design Concepts for iOS Applications
 
 ## Popular Architecture Patterns 
+
+Here are some of the most popular software architecture patterns:
+
+### 1. **Model-View-Controller (MVC)**
+- **Reference**: [developer.apple.com](https://developer.apple.com/library/archive/documentation/General/Conceptual/DevPedia-CocoaCore/MVC.html) 
+
+- **Description**: MVC is fundamental in Cocoa development, as it separates the app into three distinct roles: 
+  - **Model**: Encapsulate app-specific data and define the business logic, including the processes for manipulating and managing that data.
+  - **View**: Handle the visual representation and user interactions.  
+  - **Controller**: Acts as the intermediary between the Model and View, interpreting user actions from the View and updating the Model accordingly.
+- **Use Cases**: The foundation of many iOS frameworks such as UIKit.
+- **Main Advantages**:
+  - Simple to understand and implement.
+  - Easy to integrate with other iOS frameworks.
+  - Support parallel development as its modular approach allows clear task delegation
+- **Main Challenges**:
+  - Controllers can become overly complex (Massive View Controllers), leading to scalability limitations.
+  - Lack of a clear standard implementation, resulting in inconsistencies.
+  - Synchronizing the Model and View through the Controller can require considerable effort.
+- **Key Historical Milestones**:
+    - Origin: The concept was formulated by Trygve Reenskaug in 1970s at Xerox PARC.
+    - Formal Introduction: Officially introduced in the early 1980s during the development of Smalltalk-80.
+    - Adoption: Widely implemented in various frameworks and platforms, including: 
+      - Cocoa and Cocoa Touch frameworks by Apple.
+      - Ruby on Rails for web development.
+      - ASP.NET MVC for .NET applications.
+
+### 2. **Model-View-ViewModel (MVVM)**
+- **Reference**: Apple doesn't provide an official reference for MVVM; however, it is widely used in the developer community due to its reactive and declarative nature.
+- **Description**: Adds a **ViewModel** layer to mediate between the View and Model, handling data transformation and state management:
+  - **Model**: Represents the application's data and encapsulates the business logic.
+  - **View**: Represents the UI and is responsible for presenting data to the user.
+  - **ViewModel**: Retrieves data from the Model, processes it for display in the View, handles user inputs from the View, updates the Model as needed, and manages the state of the App.
+- **Use Cases**: Apps with complex UI bindings, often used with SwiftUI or RxSwift.
+- **Main Advantages**:
+    - Enhanced testability as the ViewModel is independent of the UI framework, making unit testing easier.
+    - Improves code reusability since viewModels can be reused across multiple Views and platforms.
+    - Seamless integration with declarative UI frameworks like SwiftUI and React.
+- **Main Challenges**:
+  - Additional abstraction layers can introduce performance penalties, affecting app responsiveness.
+  - ViewModels can become bloated when too much logic is placed in them.
+  - Platforms like iOS lack official MVVM frameworks, leading to potential inconsistencies in implementations.
+- **Key Historical Milestones**:
+    - Origin: Introduced by John Gossman in 2005 while working on Microsoft’s WPF framework.
+    - Adoption: Widely used with modern declarative UI frameworks: 
+      - React
+      - SwiftUI
+      - Jetpack Compose (Android)
 
 ## Design Patterns
 
