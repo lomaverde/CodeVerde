@@ -7,32 +7,46 @@
 
 import Foundation
 
-protocol EventCoreServiceProtocol: AnyObject {
-    
+protocol EventCoreServiceContext {
+    var localService: EventLocalServicing { get }
+    var networkService: EventNetworkService { get }
+    var networkManager: NetworkManager { get }
+}
+
+protocol EventCoreServicing {
+    var context: EventCoreServiceContext { get }
     var isEnabled: Bool { get set }
-    
-    func add(eventWrapper: EventCodableWrapper)
-    
+    func add(event: EventLoggable)
 }
 
 /// A core service responsible for managing and uploading Analytics events.
 /// It provides a central point for asynchronously adding, storing, and uploading events.
-public class EventCoreService: EventCoreServiceProtocol {
+public class EventCoreService: EventCoreServicing {
     
+    let context: any EventCoreServiceContext
+    
+    struct Context: EventCoreServiceContext {
+        let localService: any EventLocalServicing
+        let networkService: EventNetworkService
+        let networkManager: NetworkManager
+        
+        init(localService: any EventLocalServicing = EventLocalServiceV3(),
+             networkManager: NetworkManager = NetworkManager.shared,
+             networkService: EventNetworkService = EventNetworkService()
+        ) {
+            self.localService = localService
+            self.networkManager = networkManager
+            self.networkService = networkService
+        }
+    }
+        
     /// A struct to keep track of different counts.
     struct EventCounts {
         var total: Int = 0
         var sent: Int = 0
     }
     
-    /// The shared singleton instance of `EventService`.
-    //public static let shared = EventCoreService()
-    
-    private let localRepo = EventLocalServiceV2.shared
-    private let serverRepo = EventNetworkService()
-    private let networkManager = NetworkManager.shared
-    
-    /// counts of events for logging
+    /// counts of events for local debugging
     private var counts = EventCounts()
     
     /// A Boolean value indicating whether `EventCoreService` is enabled.
@@ -56,7 +70,8 @@ public class EventCoreService: EventCoreServiceProtocol {
     /// The time interval, in seconds, for the upload timer.
     private let timerInterval = 20.0
 
-    init() {
+    init(context: EventCoreServiceContext = Context()) {
+        self.context = context
         startUploadTimer()
     }
 
@@ -64,10 +79,10 @@ public class EventCoreService: EventCoreServiceProtocol {
         timer?.invalidate()
     }
     
-    func add(eventWrapper: EventCodableWrapper) {
+    func add(event: EventLoggable)  {
         guard isEnabled else { return }
         counts.total += 1
-        localRepo.add(event: eventWrapper)
+        context.localService.add(event: event)
     }
 }
 
@@ -91,32 +106,44 @@ private extension EventCoreService {
     /// and any required retries.
     ///
     func uploadNextBatch() {
-        let logPrefix = "EventService.uploadEvents"
         let logger = analyticsLog
-        guard networkManager.isConnected else {
-            debug("\(logPrefix) did not start: isConnected = false", logger)
+        guard context.networkManager.isConnected else {
+            debug("Did not start: isConnected = false", logger)
             return
         }
         
-        debug("\(logPrefix) old counts: total:\(counts.total), sent:\(counts.sent)", logger)
+        debug("Old counts: total:\(counts.total), sent:\(counts.sent)", logger)
         
-        let events = localRepo.dequeueNextBatch
-        debug("\(logPrefix) processing new batch of event: \(events.count)", logger)
+        let events = context.localService.dequeueNextBatch
+        debug("Processing new batch of event: \(events.count)", logger)
         
-        for codableEvent in events {
-            let event = codableEvent.event
+        for event in events {
             Task {
+                debug("submitting to server: \(event.timestamp)", logger)
                 do {
-                    debug("\(logPrefix) submitting to server: \(event.timestamp)", logger)
-                    try await serverRepo.sendEventLog(event)
-                    counts.sent += 1
-                    debug("\(logPrefix) successfully submitted to server: \(event.timestamp)", logger)
+                    try await context.networkService.sendEventLog(event)
                 } catch {
-                    debug("\(logPrefix) failed to submit to server: \(event.timestamp)", logger)
+                    debug("failed to submit to server: \(event.timestamp)", logger)
                     // Add the failed event back for retry later.
-                    localRepo.add(event: codableEvent)
+                    context.localService.add(event: event)
                 }
             }
         }
+        
+//        in events {
+//            let event = codableEvent.event
+//            Task {
+//                do {
+//                    debug("\(logPrefix) submitting to server: \(event.timestamp)", logger)
+//                    try await serverRepo.sendEventLog(event)
+//                    counts.sent += 1
+//                    debug("\(logPrefix) successfully submitted to server: \(event.timestamp)", logger)
+//                } catch {
+//                    debug("\(logPrefix) failed to submit to server: \(event.timestamp)", logger)
+//                    // Add the failed event back for retry later.
+//                    localRepo.add(event: codableEvent)
+//                }
+//            }
+//        }
     }
 }

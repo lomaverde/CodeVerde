@@ -7,16 +7,19 @@
 
 import Foundation
 
-public class AnalyticsFacade {
+public class AnalyticsService {
     
-    // Singleton instance for centralized access
-    public static let shared = AnalyticsFacade()
+    /// Return a shared singleton instance.
+    /// The shared service can be customized by modifying the FrameworkContext.
+    /// This instance will be used to log each EventLoggable.
+    public static let shared = AnalyticsService()
     
-    // Dependency: AppContext
-    let context = FrameworkContext()
+    /// Dependency: Context for the Framework.
+    var context = FrameworkContext()
     
     /// Private initializer to prevent external instantiation
-    private init() {}
+    private init() {
+    }
     
     /// Enable the analytics service
     public func enableService() {

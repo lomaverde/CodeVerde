@@ -7,15 +7,14 @@
 
 class FrameworkContext {
     
-    let eventCoreService: EventCoreServiceProtocol
-    
+    var eventCoreService: EventCoreServicing
     var isEnabled: Bool = false {
         didSet {
             eventCoreService.isEnabled = isEnabled
         }
     }
 
-    init(eventCoreService: EventCoreServiceProtocol = EventCoreService()) {
+    init(eventCoreService: EventCoreServicing = EventCoreService()) {
         self.eventCoreService = eventCoreService
     }
 }

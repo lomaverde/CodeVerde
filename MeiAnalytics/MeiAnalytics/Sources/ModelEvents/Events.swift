@@ -8,7 +8,8 @@
 import Foundation
 
 /// Event will be timestamped and logged when log method is called.
-public struct ImmediateEvent: EventLoggable {
+public class ImmediateEvent: EventLoggable {
+
     
     public let type: String
     public var timestamp: Date
@@ -22,7 +23,7 @@ public struct ImmediateEvent: EventLoggable {
 }
 
 /// Event will be timestamped, duration calculated, and logged when log method is called.
-public struct DurationEvent: DurationEventLoggable {
+public class DurationEvent: DurationEventLoggable {
     public let type: String
     public var timestamp: Date
     public var payload: EventPayload

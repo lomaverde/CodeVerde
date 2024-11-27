@@ -153,6 +153,8 @@ Sequence-Log_DurationEvent
 
 - *Singleton*
 - *Dependency Injection*
+- *Prototype*: Create objects by copying existing objects. 
+  - Example: EventLoggable.deepCopy using JSON encoding/decoding.
 
 ##### Structural 
 
