@@ -16,8 +16,8 @@ import Foundation
 /// This protocol is designed to standardize how events are logged, ensuring consistency across
 /// different event types within the system.
 ///
-public protocol EventLoggable: Codable {
-    
+public protocol EventLoggable: AnyObject, Codable {
+        
     /// Type of the logging event
     var type: String { get }
     
@@ -28,45 +28,32 @@ public protocol EventLoggable: Codable {
     var payload: EventPayload { get set }
     
     /// Timestamps, updates the event, and sends the immutable content to the logging service.
-    mutating func log()
-    
-    /// Return debug information.
-    func debugInfo () -> String
-    
-    /// EncodedData
-    func encodedData() throws -> Data
-    
-    /// Return a deep copy of the event.
-    func deepCopy() -> Self
+    func log()
 }
 
+/// Default implementation for public functions.
 public extension EventLoggable {
-    /// Return Debug information
-    func debugInfo () -> String { "\(timestamp.shortDebugString), \(type), payload: \(payload.values.count)" }
-    
-    mutating func log(){
-        timestamp = .now
-        addLog()
+        
+    func log(){
+        addLog(logService: AnalyticsService.shared.context.eventCoreService)
     }
-    
+}
+
+/// Default Implementation for internal functions.
+extension EventLoggable {
+    var debugInfo: String { "\(timestamp.shortDebugString), \(type), payload: \(payload.values.count)" }
+
     func encodedData() throws -> Data {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         return try encoder.encode(self)
     }
-    
-    func decode(data: Data) throws -> Self {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        return try decoder.decode(Swift.type(of: self), from: data)
-    }
 }
 
-extension EventLoggable {
-    
-    var logService: EventCoreService { EventCoreService.shared }
-    
-    public func deepCopy() -> Self {
+/// Default Implementation for fileprivate functions.
+fileprivate extension EventLoggable {
+
+    func deepCopy() -> Self {
         // Encode the object to JSON
         let encoder = JSONEncoder()
         guard let data = try? encoder.encode(self) else {
@@ -82,17 +69,27 @@ extension EventLoggable {
         return copy
     }
     
-    func addLog() {
-        guard logService.isEnabled else { return }
+    func decode(data: Data) throws -> Self {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try decoder.decode(Swift.type(of: self), from: data)
+    }
+    
+    /// Update timestamp before submitting the log.
+    func updateBeforeLog() {
+        timestamp = .now
+    }
+    
+    func addLog(logService: EventCoreServicing){
         
-        do {
-            // Pass a deep copy of event to the service to avoid it being modifed by the owner of the event
-            // after it is being logged.
-            let codableEvent = try EventCodableWrapper(event: self.deepCopy())
-            logService.add(eventWrapper: codableEvent)
-        } catch {
-            print(error)
+        (self as EventLoggable).updateBeforeLog()
+        
+        if let durationSelf = self as? DurationEventLoggable {
+            durationSelf.updateBeforeLog()
         }
+                
+        guard logService.isEnabled else { return }
+        logService.add(event: self.deepCopy())
     }
 }
 
@@ -111,24 +108,30 @@ public protocol DurationEventLoggable: EventLoggable {
     var duration: TimeInterval { get set}
 }
 
+/// Default implementation for public functions.
 public extension DurationEventLoggable {
-    /// Start tracking the time.
-    mutating func start() {
+    /// Start tracking the log duration.
+    func start() {
         startTime = .now
     }
-    
+}
+
+/// Default Implementation for internal functions.
+extension DurationEventLoggable {
     /// Return Debug information
-    func debugInfo () -> String { "\(timestamp.shortDebugString), \(type), payload: \(payload.values.count), duration: \(duration)" }
+    var debugInfo: String { "\(timestamp.shortDebugString), \(type), payload: \(payload.values.count), duration: \(duration)" }
+}
+
+/// Default implementation for fileprivate functions.
+fileprivate extension DurationEventLoggable {
     
-    /// Log the event after updating the timestamp and duration.
-    mutating func log(){
-        timestamp = .now
+    /// Update duration before submitting the log.
+    func updateBeforeLog() {
+        debug("")
         if let startTime {
             duration =  timestamp.timeIntervalSince(startTime)
         } else {
             duration = -1
         }
-        addLog()
     }
 }
-

@@ -22,9 +22,17 @@ var nowDebugString: String { Date.now.shortDebugString}
 /// - Parameters:
 ///   - message: The debug message to log.
 ///   - log: The `OSLog` instance specifying the log category, with `OSLog.default` as the default.
-func debug(_ message: String, _ log: OSLog = OSLog.default) {
-    os_log("%{public}@%{public}@", log: log, type: .debug, nowDebugString, message)
+func debug(_ message: String, _ log: OSLog = OSLog.default,
+           file: String = #file, function: String = #function, line: Int = #line) {
+    let fileName = (file as NSString).lastPathComponent
+    os_log("%{public}@[%{public}@:%d] %{public}@ - @%{public}@", log: log, type: .debug, nowDebugString, fileName, line, function, message)
 }
+
+//func debugLog(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
+//    let fileName = (file as NSString).lastPathComponent
+//    os_log("[%{public}@:%d] %{public}@ - %{public}@", type: .debug, fileName, line, function, message)
+//}
+
 
 /// Logs an info message to the specified logging category.
 ///
