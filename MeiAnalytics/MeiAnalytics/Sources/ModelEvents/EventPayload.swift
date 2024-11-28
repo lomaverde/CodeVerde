@@ -35,7 +35,7 @@ public class EventPayload: Codable, Equatable {
         return true
     }
     
-    var values: [String: AnalyticsLogableValue] = [:]
+    internal var values: [String: AnalyticsLogableValue] = [:]
 }
 
 public extension EventPayload {
@@ -69,6 +69,13 @@ public extension EventPayload {
     @discardableResult
     func set(_ key: String, _ value: Bool) -> Self {
         values[key] = .bool(value)
+        return self
+    }
+    
+    /// Remove all payload values.
+    /// self is return for chaining updates.
+    func reset() -> Self {
+        values.removeAll()
         return self
     }
 }
