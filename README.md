@@ -35,6 +35,17 @@ Feel free to contribute or share your thoughts! Together, we can advance the art
       - [Features Improvement](#features-improvement)
         - [Analytics Framework](#analytics-framework)
       - [Technical Improvement](#technical-improvement)
+  - [MeiUIKit](#meiuikit)
+    - [1. Features](#1-features-1)
+    - [2. Installation](#2-installation-1)
+    - [3. Usage](#3-usage-1)
+    - [4. Design Diagrams](#4-design-diagrams)
+      - [4.1. Component and Class Diagrams](#41-component-and-class-diagrams)
+      - [4.2. Sequence Diagrams](#42-sequence-diagrams-1)
+    - [5. Design Patterns Used in project](#5-design-patterns-used-in-project)
+    - [6. Framework Open Tasks](#6-framework-open-tasks-1)
+      - [Features Improvement](#features-improvement-1)
+      - [Technical Improvement](#technical-improvement-1)
 - [Key Design Principles for iOS Development](#key-design-principles-for-ios-development)
   - [Popular Architecture Patterns](#popular-architecture-patterns)
     - [1. **Model-View-Controller (MVC)**](#1-model-view-controller-mvc)
@@ -49,6 +60,14 @@ Feel free to contribute or share your thoughts! Together, we can advance the art
     - [Choosing the Right Pattern:](#choosing-the-right-pattern)
   - [SOLID Design Principles](#solid-design-principles)
   - [Design Patterns](#design-patterns)
+        - [Creational](#creational-1)
+          - [**Singleton**](#singleton)
+          - [**Prototype**](#prototype)
+        - [Structural](#structural-1)
+          - [**Dependency Injection**](#dependency-injection)
+          - [**Facade**](#facade)
+        - [Behavioral](#behavioral-1)
+        - [Concurrency](#concurrency-1)
   - [Anti-Patterns](#anti-patterns)
 - [CodeVerde Project Roadmap](#codeverde-project-roadmap)
 - [Reference](#reference)
@@ -151,14 +170,22 @@ Sequence-Log_DurationEvent
 
 ##### Creational 
 
-- *Singleton*
-- *Dependency Injection*
-- *Prototype*: Create objects by copying existing objects. 
-  - Example: EventLoggable.deepCopy using JSON encoding/decoding.
+- [Singleton](#singleton): Ensures a class has only one instance and provides a global access point to it.
+  - Example: [AnalyticsService.shared](MeiAnalytics/MeiAnalytics/Sources/CoreService/AnalyticsService.swift) 
+  - Purpose: To provide a single, centralized access point for clients, ensuring a consistent and simple access to the service from all layers.
+  - This was used in conjunction with [Dependency Injection](#dependency-injection) to allow clients to manage its dependencies.
+
+- [Prototype](#prototype): Create objects by copying existing objects. 
+  - Example: [EventLoggable.deepCopy](MeiAnalytics/MeiAnalytics/Sources/ModelEvents/EventLoggables.swift) using JSON encoding/decoding.
 
 ##### Structural 
 
-- *Facade*
+- [Dependency Injection](#dependency-injection)
+  - Example: [AnalyticsService.context](MeiAnalytics/MeiAnalytics/Sources/CoreService/AnalyticsService.swift) 
+  - Purpose: This allow unit test to create instance with depedencies configured for unit test by calling `instanceForTesting'. 
+- [Facade](#facade)
+   - Example: [AnalyticsService](MeiAnalytics/MeiAnalytics/Sources/CoreService/AnalyticsService.swift) 
+   - Purpose: Provides a simplier interface while reducing coupling between the client and the internal components.
 
 ##### Behavioral
 
@@ -202,6 +229,35 @@ Sequence-Log_DurationEvent
 2. Add Unit tests
 3. Add UI automation tests.
 
+## MeiUIKit
+
+**MeiUIKit** aims to tackle scalability and UI fragmentation challenges.  It offers a collection of generic and configurable UI components designed to streamline and unify the UI elements across a system.  
+
+### 1. Features
+
+- **Content Navigations**: Enables clients to organize and present data in a tree-like structure.
+  - Video Scrubber
+  - Book Style Navigation
+
+### 2. Installation
+
+### 3. Usage
+
+### 4. Design Diagrams
+
+#### 4.1. Component and Class Diagrams
+
+#### 4.2. Sequence Diagrams
+
+### 5. Design Patterns Used in project
+
+### 6. Framework Open Tasks
+
+#### Features Improvement
+
+#### Technical Improvement
+
+
 # Key Design Principles for iOS Development
 
 ## Popular Architecture Patterns 
@@ -209,8 +265,6 @@ Sequence-Log_DurationEvent
 Here are some of the most popular software architecture patterns:
 
 ### 1. **Model-View-Controller (MVC)**
-- **Reference**: [developer.apple.com](https://developer.apple.com/library/archive/documentation/General/Conceptual/DevPedia-CocoaCore/MVC.html) 
-
 - **Description**: MVC is fundamental in Cocoa development, as it separates the app into three distinct roles: 
   - **Model**: Encapsulate app-specific data and define the business logic, including the processes for manipulating and managing that data.
   - **View**: Handle the visual representation and user interactions.  
@@ -231,9 +285,9 @@ Here are some of the most popular software architecture patterns:
       - Cocoa and Cocoa Touch frameworks by Apple.
       - Ruby on Rails for web development.
       - ASP.NET MVC for .NET applications.
+- **Reference**: [developer.apple.com](https://developer.apple.com/library/archive/documentation/General/Conceptual/DevPedia-CocoaCore/MVC.html) 
 
 ### 2. **Model-View-ViewModel (MVVM)**
-- **Reference**: Apple doesn't provide an official reference for MVVM; however, it is widely used in the developer community due to its reactive and declarative nature.
 - **Description**: Adds a **ViewModel** layer to mediate between the View and Model, handling data transformation and state management:
   - **Model**: Represents the app's data and encapsulates the business logic.
   - **View**: Represents the UI and is responsible for presenting data to the user.
@@ -253,6 +307,7 @@ Here are some of the most popular software architecture patterns:
       - React
       - SwiftUI
       - Jetpack Compose (Android)
+- **Reference**: Apple doesn't provide an official reference for MVVM; however, it is widely used in the developer community due to its reactive and declarative nature.
 
 ### 3. **VIPER (View, Interactor, Presenter, Entity, Router)**
 - **Description**: A strict architecture pattern that divides the app into five distinct components:
@@ -308,8 +363,33 @@ Each pattern has trade-offs, so the choice depends on your app's complexity, tea
 
 ## SOLID Design Principles
 
-## Design Patterns
+## [Design Patterns](https://en.wikipedia.org/wiki/Software_design_pattern)
 
+Design patterns make development faster by providing tried-and-true solutions to common programming problems. Good software design means thinking ahead about issues that might not show up right away during implementation. Fresh code can sometimes have hidden bugs or quirks that take a while to spot and could cause bigger problems later on. Using design patterns can help avoid these pitfalls and make the code easier to read and maintain.
+
+##### Creational 
+
+
+
+###### **Singleton**
+
+###### **Prototype**
+
+
+##### Structural 
+
+###### **Dependency Injection**
+
+###### **Facade**
+
+
+##### Behavioral
+
+- *Strategy*
+
+##### Concurrency 
+
+- *Reader-Writer Lock*
 ## Anti-Patterns
 
 # CodeVerde Project Roadmap
