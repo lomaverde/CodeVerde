@@ -11,7 +11,7 @@ import MeiAnalytics
 @main
 struct MeiLogSampleAppApp: App {
     
-    private var eventService = AnalyticsService.shared
+    private let eventService = AnalyticsService.shared
     
     init() {
         eventService.enableService()

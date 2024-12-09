@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class AnalyticsService {
+final public class AnalyticsService {
     
     /// Returns the shared singleton instance of `AnalyticsService`.
     /// This shared service can be customized by updating the `FrameworkContext`.

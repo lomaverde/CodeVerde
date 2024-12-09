@@ -60,7 +60,7 @@ Feel free to contribute or share your thoughts! Together, we can advance the art
     - [Choosing the Right Pattern:](#choosing-the-right-pattern)
   - [SOLID Design Principles](#solid-design-principles)
   - [Design Patterns](#design-patterns)
-        - [Creational](#creational-1)
+        - [**Creational**](#creational-1)
           - [**Singleton**](#singleton)
           - [**Prototype**](#prototype)
         - [Structural](#structural-1)
@@ -367,14 +367,57 @@ Each pattern has trade-offs, so the choice depends on your app's complexity, tea
 
 Design patterns make development faster by providing tried-and-true solutions to common programming problems. Good software design means thinking ahead about issues that might not show up right away during implementation. Fresh code can sometimes have hidden bugs or quirks that take a while to spot and could cause bigger problems later on. Using design patterns can help avoid these pitfalls and make the code easier to read and maintain.
 
-##### Creational 
+##### **Creational** 
 
+Creational design patterns deal with object creation mechanisms, aiming to create objects in a way that is suitable for the situation. These patterns provide flexibility and enhance the reusability of code by abstracting the instantiation process. They help make the system independent of how its objects are created, composed, and represented.
 
+**Key Objectives**
+- Encapsulation of Object Creation: Hides the logic of object creation from the client.
+- Flexible Instantiation: Enables multiple ways to create objects without modifying client code.
+- Enhanced Reusability: Ensures consistent and reusable object creation processes.
 
 ###### **Singleton**
 
-###### **Prototype**
+The Singleton design pattern ensures that a class has only one instance and provides a global access point to it. This pattern is commonly used when a single object is required to coordinate actions across the system, such as managing shared resources or a common configurations.
 
+**Key Characteristics**
+- Single Instance: Guarantees that only one instance of the class is created throughout the app lifecycle..
+- Global Access Point: Provides a way to access the instance from anywhere.
+- Lazy Initialization: The instance is created only when first accessed.
+
+**Advantages**
+- Simplifies management of shared resources by controlling access to the sole instance.
+- Reduces memory overhead by reusing the same instance.
+
+**Disadvantages**
+- Global state can make testing and debugging more difficult.
+- Tight coupling to the Singleton can complicate dependencies which lead to reduce flexibility.
+- Violates the principle of dependency injection by hiding dependencies.
+
+**How It Fits in the Category**
+- Core Intent: Ensures controlled creation of an object, guaranteeing a single instance.
+- Encapsulation: Encapsulates object creation logic within the class, hiding it from external code.
+
+**iOS System Use Cases**
+- NSNotificationCenter.default
+- URLSession.shared 
+- UserDefaults.standard.
+
+**Code Template**
+```swift
+final public class AnalyticsService {
+    public static let shared = AnalyticsService()
+    private init() {
+    }
+}
+```
+
+**Usage**
+```swift
+  let eventService = AnalyticsService.shared
+```
+
+###### **Prototype**
 
 ##### Structural 
 
